@@ -9,7 +9,7 @@ import (
 func main(){
 	router := routing.NewRouter()
 
-	server := http.ListenAndServe(":8080", router)
+	server := http.ListenAndServe(":3000", router)
 
 	log.Fatal(server)
 }
