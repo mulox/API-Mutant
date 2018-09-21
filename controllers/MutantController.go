@@ -8,6 +8,7 @@ import(
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"API-Mutant/models"
+	"fmt"
 )
 
 var dnas = getSession().DB("dnas").C("dnas")
@@ -34,7 +35,9 @@ func IsMutant(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// DNA Sequence verification Len + characters
-	if(checkValidDnaSequence(w, adn)){
+	valid := false
+	adn.Dnax, valid = checkValidDnaSequence(w, adn)
+	if(valid){
 		//Because DNA makes us unique, we only need one row by human/mutant in our DB
 		if(verifyIfExistOnDB(w, adn)){
 			//DNA Verification Horizontal, Vertical & Diagonal
@@ -43,14 +46,14 @@ func IsMutant(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func checkValidDnaSequence(w http.ResponseWriter, adn models.Dna) bool{
+func checkValidDnaSequence(w http.ResponseWriter, adn models.Dna) (string, bool){
 	validsChars := []string{"A", "C", "G", "T"}
 
 	adn.Dnax = strings.Join(adn.Dna, "")
 
 	if (len(adn.Dna) != 6 || utf8.RuneCountInString(adn.Dnax) != 36){
 		response(w, 400, "It's not a valid DNA sequence")
-		return false
+		return adn.Dnax , false
 		
 	}
 
@@ -60,11 +63,11 @@ func checkValidDnaSequence(w http.ResponseWriter, adn models.Dna) bool{
 		ok, _ := InArray(string(rd), validsChars)
 		if (!ok){
 			response(w, 400, "It's not a valid DNA sequence")
-			return false
+			return adn.Dnax , false
 		}
 	}
 
-	return true
+	return adn.Dnax , true
 }
 
 func verifyIfExistOnDB(w http.ResponseWriter, adn models.Dna) bool{
@@ -79,13 +82,13 @@ func verifyIfExistOnDB(w http.ResponseWriter, adn models.Dna) bool{
 		panic(err)
 		return false
 	}
-
+fmt.Println(len(exist))
 	if(len(exist) > 0){
 		if(exist[0].IsMutant == true){
-			response(w, 200, "The processed DNA belongs to a Mutant")
+			response(w, 200, "The processed DNA belongs to a Mutant DB")
 			return false
 		}else{
-			response(w, 403, "The processed DNA belongs to a human")
+			response(w, 403, "The processed DNA belongs to a human DB")
 			return false
 		}
 	}
