@@ -11,6 +11,7 @@ import(
 )
 
 var dnas = getSession().DB("dnas").C("dnas")
+var adn models.Dna
 
 func getSession() *mgo.Session{
 	session, err := mgo.Dial("mongodb://127.0.0.1")
@@ -24,8 +25,7 @@ func getSession() *mgo.Session{
 
 func IsMutant(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-
-	var adn models.Dna
+	
 	err := decoder.Decode(&adn)
 
 	if(err != nil){
@@ -33,14 +33,24 @@ func IsMutant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// DNA Sequence verification Len + characters
+	if(checkValidDnaSequence(w, adn)){
+		//Because DNA makes us unique, we only need one row by human/mutant in our DB
+		if(verifyIfExistOnDB(w, adn)){
+			//DNA Verification Horizontal, Vertical & Diagonal
+			verifyCombination(w, adn)
+		}
+	}
+}
 
+func checkValidDnaSequence(w http.ResponseWriter, adn models.Dna) bool{
 	validsChars := []string{"A", "C", "G", "T"}
 
 	adn.Dnax = strings.Join(adn.Dna, "")
 
 	if (len(adn.Dna) != 6 || utf8.RuneCountInString(adn.Dnax) != 36){
 		response(w, 400, "It's not a valid DNA sequence")
-		return
+		return false
 		
 	}
 
@@ -50,35 +60,40 @@ func IsMutant(w http.ResponseWriter, r *http.Request) {
 		ok, _ := InArray(string(rd), validsChars)
 		if (!ok){
 			response(w, 400, "It's not a valid DNA sequence")
-			return
+			return false
 		}
 	}
 
+	return true
+}
 
-	//Because DNA makes us unique, we only need one row by human/mutant in our DB
+func verifyIfExistOnDB(w http.ResponseWriter, adn models.Dna) bool{
 	var exist []models.Dna
 
 	query := bson.M{"dnax": adn.Dnax}
 
 	iter := dnas.Find(query).Limit(1).Iter()
-	err = iter.All(&exist)
+	err := iter.All(&exist)
 
 	if(err != nil){
 		panic(err)
-		return
+		return false
 	}
 
 	if(len(exist) > 0){
 		if(exist[0].IsMutant == true){
 			response(w, 200, "The processed DNA belongs to a Mutant")
-			return
+			return false
 		}else{
 			response(w, 403, "The processed DNA belongs to a human")
-			return
+			return false
 		}
 	}
-	
 
+	return true
+}
+
+func verifyCombination(w http.ResponseWriter, adn models.Dna) bool{
 	nacth := []string{}
 	counterCombH := 0
 	counterCombV := 0
@@ -111,11 +126,15 @@ func IsMutant(w http.ResponseWriter, r *http.Request) {
 		adn.IsMutant = true
 		response(w, 200, "The processed DNA belongs to a Mutant")
 		dnas.Insert(adn)
+		return false
 	}else{
 		adn.IsMutant = false
 		response(w, 403, "The processed DNA belongs to a human")
 		dnas.Insert(adn)
+		return false
 	}
+
+	return true
 }
 
 

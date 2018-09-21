@@ -30,6 +30,10 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var result models.Stats
+	result.Mutant = 0
+	result.Human = 0
+	result.Ratio = 0
+
 	for _, v := range adnlist{
 
 		if(v.IsMutant == true){
@@ -39,7 +43,9 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	result.Ratio = float32(result.Mutant)/float32(result.Human)
+	if(result.Human > 0){
+		result.Ratio = float32(result.Mutant)/float32(result.Human)
+	}
 
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(200)
