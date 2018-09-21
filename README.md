@@ -33,11 +33,11 @@ Como instalar MongoDB,
 
 	Debian
 	https://docs.mongodb.com/manual/tutorial/install-mongodb-on-debian/
-	### Ubuntu
+	Ubuntu
 	https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
-	### Windows
+	Windows
 	https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/
-	### OSx
+	OSx
 	https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/
 
 En el proyecto se incluyeron las siguientes librerías externas, que son necesario instalarlas en el entorno donde se vaya a realizar la prueba:
