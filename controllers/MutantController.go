@@ -8,7 +8,6 @@ import(
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"API-Mutant/models"
-	"fmt"
 )
 
 var dnas = getSession().DB("dnas").C("dnas")
@@ -82,7 +81,7 @@ func verifyIfExistOnDB(w http.ResponseWriter, adn models.Dna) bool{
 		panic(err)
 		return false
 	}
-fmt.Println(len(exist))
+
 	if(len(exist) > 0){
 		if(exist[0].IsMutant == true){
 			response(w, 200, "The processed DNA belongs to a Mutant DB")
