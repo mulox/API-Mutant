@@ -4,12 +4,13 @@ import (
 	"API-Mutant/routing"
 	"net/http"
 	"log"
+	"os"
 )
 
 func main(){
 	router := routing.NewRouter()
 
-	server := http.ListenAndServe(":3000", router)
+	server := http.ListenAndServe(":"+os.Args[1], router)
 
 	log.Fatal(server)
 }
