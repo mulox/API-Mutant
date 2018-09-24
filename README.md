@@ -40,7 +40,9 @@ Como instalar MongoDB,
 	OSx
 	https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/
 
-Para descargar el proyecto tiene que hacer un git clone https://github.com/mulox/API-Mutant.git
+Para descargar el proyecto tiene que hacer un git clone
+
+	git clone https://github.com/mulox/API-Mutant.git
 
 En el proyecto se incluyeron las siguientes librerías externas, que son necesario instalarlas en el entorno donde se vaya a realizar la prueba:
 
