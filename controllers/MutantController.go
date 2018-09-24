@@ -7,10 +7,18 @@ import(
 	"encoding/json"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"github.com/go-redis/redis"
 	"API-Mutant/models"
 )
 
 var dnas = getSession().DB("dnas").C("dnas")
+
+var client = redis.NewClient(&redis.Options{
+	Addr:     "localhost:6379",
+	Password: "", // no password set
+	DB:       0,  // use default DB
+})
+
 var adn models.Dna
 
 func getSession() *mgo.Session{
@@ -24,6 +32,7 @@ func getSession() *mgo.Session{
 }
 
 func IsMutant(w http.ResponseWriter, r *http.Request) {
+
 	decoder := json.NewDecoder(r.Body)
 	
 	err := decoder.Decode(&adn)
@@ -71,25 +80,36 @@ func checkValidDnaSequence(w http.ResponseWriter, adn models.Dna) (string, bool)
 
 func verifyIfExistOnDB(w http.ResponseWriter, adn models.Dna) bool{
 	var exist []models.Dna
+	val, _ := client.Get(adn.Dnax).Result()
 
-	query := bson.M{"dnax": adn.Dnax}
+	if(val != "0" || val != "1"){
+		query := bson.M{"dnax": adn.Dnax}
 
-	iter := dnas.Find(query).Limit(1).Iter()
-	err := iter.All(&exist)
+		iter := dnas.Find(query).Limit(1).Iter()
+		err := iter.All(&exist)
 
-	if(err != nil){
-		panic(err)
-		return false
-	}
-
-	if(len(exist) > 0){
-		if(exist[0].IsMutant == true){
-			response(w, 200, "The processed DNA belongs to a Mutant DB")
-			return false
-		}else{
-			response(w, 403, "The processed DNA belongs to a human DB")
+		if(err != nil){
+			panic(err)
 			return false
 		}
+
+		if(len(exist) > 0){
+			if(exist[0].IsMutant == true){
+				response(w, 200, "The processed DNA belongs to a Mutant DB")
+				client.Set(adn.Dnax, true, 0)
+				return false
+			}else{
+				response(w, 403, "The processed DNA belongs to a human DB")
+				client.Set(adn.Dnax, false, 0)
+				return false
+			}
+		}
+	}else if(val == "1"){
+		response(w, 200, "The processed DNA belongs to a Mutant DB")
+		return false
+	}else{
+		response(w, 403, "The processed DNA belongs to a human DB")
+		return false
 	}
 
 	return true

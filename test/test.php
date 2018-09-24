@@ -15,16 +15,7 @@ $stats = array(
 );
 
 echo "\e[104m ------------------------------------------------------------------------------------------------  \n\e[0m";
-echo "\e[104m | USAGE: test.php TYPE[serial|parallel] ITERATIONS[#] CONNECTIONS[#] TEST. Default serial 1 1 0 | \n\e[0m";
-echo "\e[104m | TYPE: serial: opens n connections in series, one afther the other, nicer on the server        | \n\e[0m";
-echo "\e[104m | TYPE: parallel: opens n connections in parallel, all at once, call this 'MURRA!'              | \n\e[0m";
-echo "\e[104m | ITERATIONS: how many times the processes will run                                             | \n\e[0m";
-echo "\e[104m | CONNECTIONS PER SERIES: how many connections will be opened                                   | \n\e[0m";
-echo "\e[104m | TEST sets the requests for test flow [1 | 0]                                                  | \n\e[0m";
-echo "\e[104m ------------------------------------------------------------------------------------------------  \n\e[0m";
-echo "\e[100m                                                                                                   \n";
 echo "\e[100m CREATING {$connections} ".strtoupper($type)." CONNECTIONS AND RUNNING {$iterations} TIMES - TOTAL CONNECTIONS (".($iterations*$connections)."): \n";
-echo "\e[100m                                                                                                   \n";
 echo "\e[41m -------------------------------------------------------------------------------------------------  \n\e[0m";
 
 $start = microtime(true);
@@ -32,7 +23,6 @@ $url   = 'http://127.0.0.1:8080/mutant';
 
 include("dna.php");
 
-//$func   = ($type === "serial") ? "serialRequests" : "parallelRequests";
 $total  = 0;
 for($i=0; $i < $iterations; $i++)
 {
@@ -49,13 +39,11 @@ for($i=0; $i < $iterations; $i++)
   echo "\e[41m -> Iteration $curr of $iterations done in " . $current_time['total_time'] . " / avg: " . $current_time['total_time']/$connections . " seconds \n\e[0m";
 }
 echo "\e[41m ------------------------------------------------------------------------------------------------  \n\e[0m";
-echo "\e[0m                                                                                                    \n\e[0m";
 echo "\e[0m [ TOTAL CONNECTIONS: " . ($iterations*$connections) . " ] \n";
 echo "\e[0m [ TOTAL REQUESTS:        " . $stats["requests"] . " ] \n";
 echo "\e[0m [ TOTAL RESPONSE:        " . $stats["response"] . " ] \n";
 echo "\e[1m [ REQUESTS TOOK      " . $total . " SECONDS ] \n\e[0m";
 echo "\e[1m [ SCRIPT TOOK        " . (microtime(true) - $start) . " SECONDS ] \n\e[0m";
-echo "\e[0m                                                                                                    \n\e[0m";
 
 function parallelRequests($url, $adns, $connections, $ua, $test, &$stats)
 {
@@ -93,11 +81,6 @@ function parallelRequests($url, $adns, $connections, $ua, $test, &$stats)
   foreach($curly as $id => $c)
   {
     $result = curl_multi_getcontent($c);
-    // if($result !== false)
-    // {
-    //   $stats["bids"]++;
-    //   notify($result, $ua, $test, $stats);
-    // }
     $info = curl_getinfo($c);
     $timing["namelookup_time"] += (float)$info["namelookup_time"];
     $timing["pretransfer_time"] += (float)$info["pretransfer_time"] - (float)$info["namelookup_time"];
