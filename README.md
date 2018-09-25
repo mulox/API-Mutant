@@ -2,7 +2,7 @@
 
 ### Verificación de ADN:
 
-Se debe realizar un post al endpoint http://54.218.250.5:3000/mutant  enviando la secuencia de ADN mediante un HTTP POST con un Json el cual tenga el
+Se debe realizar un post al endpoint http://54.188.111.248:3000/mutant  enviando la secuencia de ADN mediante un HTTP POST con un Json el cual tenga el
 siguiente formato:
 
 POST → /mutant/
@@ -16,7 +16,7 @@ El metodo ademas de verificar si es mutante o no, verifica que la secuencia de A
 
 ### Estadisticas:
 
-Se debe realizar un get a la siguiente URL: http://54.218.250.5:3000/stats
+Se debe realizar un get a la siguiente URL: http://54.188.111.248:3000/stats
 
 Será devuelto un JSON con el siguiente formato de ejemplo:
 
@@ -39,6 +39,10 @@ Como instalar MongoDB,
 	https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/
 	OSx
 	https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/
+
+Para descargar el proyecto tiene que hacer un git clone
+
+	git clone https://github.com/mulox/API-Mutant.git
 
 En el proyecto se incluyeron las siguientes librerías externas, que son necesario instalarlas en el entorno donde se vaya a realizar la prueba:
 
